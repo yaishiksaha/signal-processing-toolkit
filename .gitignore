@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# C/C++ build artifacts
+*.exe
+*.out
+*.o
+*.obj
+*.pdb
