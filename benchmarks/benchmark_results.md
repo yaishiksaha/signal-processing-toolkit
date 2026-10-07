@@ -2,44 +2,68 @@
 
 ## Objective
 
-Measure the runtime of frequency detection in the Python and C++ implementations for increasing input sizes.
+Measure the runtime of frequency detection in the Python and C++
+implementations for increasing input sizes.
 
 ## Methodology
 
-- Sample rate: 1000 Hz
-- Input sizes: 1024, 2048, 4096, 8192, and 16384 samples
-- Python: NumPy FFT with custom Python frequency-peak detection
-- C++: Custom radix-2 FFT with custom C++ frequency-peak detection
-- C++ compiler optimization: `-O2`
-- C++ benchmark: 20 runs per input size, with 100 detector calls per timed run
-
-The Python benchmark uses 20 runs per input size. Its reported minimum and average times are retained from the original measurements.
+-   Sampling rate: 1000 Hz
+-   Input sizes: 1024, 2048, 4096, 8192, and 16384 samples
+-   Python: NumPy FFT with custom Python frequency-peak detection
+-   C++: custom radix-2 FFT with custom C++ frequency-peak detection
+-   C++ compiler optimization: `-O2`
+-   Python: 20 runs per input size
+-   C++: 20 runs per input size, with 100 detector calls inside each
+    timed run
 
 ## Average Runtime
 
-| Samples | Python (seconds) | C++ (seconds) |
-|---:|---:|---:|
-| 1024 | 0.000827 | 0.000197629 |
-| 2048 | 0.000681 | 0.000410772 |
-| 4096 | 0.001619 | 0.000902073 |
-| 8192 | 0.002711 | 0.00180122 |
-| 16384 | 0.004019 | 0.0037183 |
+    Samples   Python (s)       C++ (s)
+  --------- ------------ -------------
+       1024     0.000827   0.000197629
+       2048     0.000681   0.000410772
+       4096     0.001619   0.000902073
+       8192     0.002711    0.00180122
+      16384     0.004019     0.0037183
 
-## Analysis
+## Scaling
 
-The C++ measurements show approximately twofold runtime increases when the input size doubles. This is consistent with the expected O(N log N) complexity of the radix-2 FFT, although the frequency detector also contributes to total runtime.
+The C++ runtime approximately doubles as the input size doubles:
 
-The Python measurements show more variability. NumPy provides an optimized FFT implementation, while the C++ implementation uses a custom FFT. Consequently, this experiment compares two complete implementations rather than isolating the performance of the programming languages themselves.
+  Input change     C++ average-time factor
+  -------------- -------------------------
+  1024 → 2048                        2.08×
+  2048 → 4096                        2.20×
+  4096 → 8192                        2.00×
+  8192 → 16384                       2.06×
 
-At 16384 samples, the measured average runtime was approximately 3.72 ms for C++ and 4.02 ms for Python. These results are preliminary and should not be treated as a universal performance ranking.
+This is consistent with the expected `O(N log N)` scaling of an
+FFT-based implementation.
+
+## Important Comparison Note
+
+The benchmark is not a pure Python-versus-C++ language comparison.
+
+The Python implementation uses NumPy's optimized FFT, while the C++
+implementation uses a custom radix-2 Cooley--Tukey FFT written as part
+of this project.
+
+Therefore, the results are best interpreted as a comparison between
+these two implementations on the same workload.
 
 ## Limitations
 
-- The measurements were collected on one machine.
-- Background processes and timing overhead may affect results.
-- The Python and C++ implementations use different FFT implementations.
-- Further repeated measurements under controlled conditions would improve the comparison.
+-   Measurements were collected on one machine.
+-   Background processes can affect timing.
+-   Python and C++ use different FFT implementations.
+-   The benchmark measures the complete frequency-detection pipeline
+    rather than the FFT alone.
+-   The results should not be generalized to all Python and C++
+    programs.
 
 ## Conclusion
 
-The benchmark demonstrates that the custom C++ implementation processes increasing input sizes with scaling consistent with FFT-based frequency detection. It also establishes a reproducible starting point for future optimization and testing.
+The benchmark provides empirical evidence that the custom C++
+frequency-detection pipeline scales approximately as expected for an
+FFT-based algorithm. It also provides a reproducible baseline for future
+optimization or algorithmic changes.
